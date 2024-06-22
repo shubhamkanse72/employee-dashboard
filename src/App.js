@@ -1,23 +1,221 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useState, useEffect, useCallback } from "react";
+import sampleData from "./sample-data.json";
 
 function App() {
+  const data = sampleData.data.AuthorWorklog.rows;
+  const [selectedUser, setSelectedUser] = useState("total");
+  const [selectedDate, setSelectedDate] = useState("total");
+  const [open, setOpen] = useState(0);
+  const [merged, setMerged] = useState(0);
+  const [reviewed, setReviewed] = useState(0);
+  const [comment, setComment] = useState(0);
+  const [commit, setCommit] = useState(0);
+  const [resolved, setResolved] = useState(0);
+  const [alert, setAlert] = useState(0);
+
+  const handleUserChange = (event) => {
+    setSelectedUser(event.target.value);
+  };
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
+  const setData = (
+    open,
+    merged,
+    commit,
+    reviewed,
+    comment,
+    alert,
+    resolved
+  ) => {
+    setOpen(open);
+    setMerged(merged);
+    setCommit(commit);
+    setReviewed(reviewed);
+    setComment(comment);
+    setAlert(alert);
+    setResolved(resolved);
+  };
+  const sortData = useCallback((user, date) => {
+    if (user === "total") {
+      if (date === "total") {
+        let newData = {
+          open: 0,
+          merged: 0,
+          commit: 0,
+          reviewed: 0,
+          comment: 0,
+          alert: 0,
+          resolved: 0,
+        };
+        for (let i = 0; i < data.length; i++) {
+          let [open, merged, commit, reviewed, comment, alert, resolved] =
+            data[i].totalActivity;
+
+          newData.open = newData.open + parseInt(open.value);
+          newData.merged = newData.merged + parseInt(merged.value);
+          newData.commit = newData.commit + parseInt(commit.value);
+          newData.reviewed = newData.reviewed + parseInt(reviewed.value);
+          newData.comment = newData.comment + parseInt(comment.value);
+          newData.alert = newData.alert + parseInt(alert.value);
+          newData.resolved = newData.resolved + parseInt(resolved.value);
+        }
+        setData(
+          newData.open,
+          newData.merged,
+          newData.commit,
+          newData.reviewed,
+          newData.comment,
+          newData.alert,
+          newData.resolved
+        );
+      } else {
+        let newData = {
+          open: 0,
+          merged: 0,
+          commit: 0,
+          reviewed: 0,
+          comment: 0,
+          alert: 0,
+          resolved: 0,
+        };
+        for (let i = 0; i < data.length; i++) {
+          for (let j = 0; j < data[i].dayWiseActivity.length; j++) {
+            if (data[i].dayWiseActivity[j].date === date) {
+              let items = data[i].dayWiseActivity[j].items;
+              let [open, merged, commit, reviewed, comment, alert, resolved] =
+                items.children;
+              newData.open = newData.open + parseInt(open.count);
+              newData.merged = newData.merged + parseInt(merged.count);
+              newData.commit = newData.commit + parseInt(commit.count);
+              newData.reviewed = newData.reviewed + parseInt(reviewed.count);
+              newData.comment = newData.comment + parseInt(comment.count);
+              newData.alert = newData.alert + parseInt(alert.count);
+              newData.resolved = newData.resolved + parseInt(resolved.count);
+            }
+          }
+        }
+        setData(
+          newData.open,
+          newData.merged,
+          newData.commit,
+          newData.reviewed,
+          newData.comment,
+          newData.alert,
+          newData.resolved
+        );
+      }
+    } else {
+      if (date === "total") {
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].name === user) {
+            let [open, merged, commit, reviewed, comment, alert, resolved] =
+              data[i].totalActivity;
+            setData(
+              parseInt(open.value),
+              parseInt(merged.value),
+              parseInt(commit.value),
+              parseInt(reviewed.value),
+              parseInt(comment.value),
+              parseInt(alert.value),
+              parseInt(resolved.value)
+            );
+          }
+        }
+      } else {
+        for (let i = 0; i < data.length; i++) {
+          if (data[i].name === user) {
+            for (let j = 0; j < data[i].dayWiseActivity.length; j++) {
+              if (data[i].dayWiseActivity[j].date === date) {
+                let newData = data[i].dayWiseActivity[j].items;
+                let [open, merged, commit, reviewed, comment, alert, resolved] =
+                  newData.children;
+                setData(
+                  parseInt(open.count),
+                  parseInt(merged.count),
+                  parseInt(commit.count),
+                  parseInt(reviewed.count),
+                  parseInt(comment.count),
+                  parseInt(alert.count),
+                  parseInt(resolved.count)
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  }, [data]);
+  useEffect(() => {
+    sortData(selectedUser, selectedDate);
+  }, [selectedUser, selectedDate,sortData]);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div>
+        <section></section>
+        <section>
+          <div>
+            <label htmlFor="dropdown">Select User:</label>
+            <select value={selectedUser} onChange={handleUserChange}>
+              <option value="total">All</option>
+              {data.map((option, index) => (
+                <option key={index} value={option.name}>
+                  {option.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="dropdown">Select Date:</label>
+            <select value={selectedDate} onChange={handleDateChange}>
+              <option value="total">All</option>
+              {data.map((item) =>
+                item.dayWiseActivity.map((option, optionIndex) => (
+                  <option key={optionIndex} value={option.date}>
+                    {option.date}
+                  </option>
+                ))
+              )}
+            </select>
+          </div>
+        </section>
+        <section>
+          <div>
+            <div>
+              <span>PR Open</span>
+              <span>{open}</span>
+            </div>
+            <div>
+              <span>PR Merged</span>
+              <span>{merged}</span>
+            </div>
+            <div>
+              <span>PR Reviewed</span>
+              <span>{reviewed}</span>
+            </div>
+            <div>
+              <span>PR Comments</span>
+              <span>{comment}</span>
+            </div>
+          </div>
+          <div>
+            <div>
+              <span>Commits</span>
+              <span>{commit}</span>
+            </div>
+            <div>
+              <span>Incidents Resolved</span>
+              <span>{resolved}</span>
+            </div>
+            <div>
+              <span>Incident Alerts</span>
+              <span>{alert}</span>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }
