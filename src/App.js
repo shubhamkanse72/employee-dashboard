@@ -306,7 +306,7 @@ function App() {
     setResolved(resolved);
   };
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="loading"><h3>Loading...</h3></div>;
   }
 
   return (

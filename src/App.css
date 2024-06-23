@@ -83,3 +83,13 @@ select {
   width: 46%;
   height: 46%;
 }
+.loading {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  align-items: center;
+  height: 100vh;
+}
+.loading h3 {
+  font-size: 3rem;
+}
