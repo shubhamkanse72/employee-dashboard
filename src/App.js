@@ -1,6 +1,26 @@
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
+import { Bar, Pie } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from "chart.js";
 import sampleData from "./sample-data.json";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
 
 function App() {
   const data = sampleData.data.AuthorWorklog.rows;
@@ -14,9 +34,6 @@ function App() {
   const [resolved, setResolved] = useState(0);
   const [alert, setAlert] = useState(0);
 
-  const handleUserChange = (event) => {
-    setSelectedUser(event.target.value);
-  };
   const [
     openStyle,
     mergedStyle,
@@ -26,6 +43,93 @@ function App() {
     alertStyle,
     resolvedStyle,
   ] = sampleData.data.AuthorWorklog.activityMeta;
+
+  const barData = {
+    labels: [
+      "PR Open",
+      "PR Merged",
+      "Commit",
+      "PR Reviewed",
+      "PR Comment",
+      "Incidents Resolved",
+      "Incidents Alerts",
+    ],
+    datasets: [
+      {
+        label: "",
+        data: [open, merged, commit, reviewed, comment, alert, resolved],
+        backgroundColor: [
+          openStyle.fillColor,
+          mergedStyle.fillColor,
+          commitStyle.fillColor,
+          reviewedStyle.fillColor,
+          commentStyle.fillColor,
+          alertStyle.fillColor,
+          resolvedStyle.fillColor,
+        ],
+        borderColor: [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const barOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const pieData = {
+    labels: [
+      "PR Open",
+      "PR Merged",
+      "Commit",
+      "PR Reviewed",
+      "PR Comment",
+      "Incidents Resolved",
+      "Incidents Alerts",
+    ],
+    datasets: [
+      {
+        label: "",
+        data: [open, merged, commit, reviewed, comment, alert, resolved],
+        backgroundColor: [
+          openStyle.fillColor,
+          mergedStyle.fillColor,
+          commitStyle.fillColor,
+          reviewedStyle.fillColor,
+          commentStyle.fillColor,
+          alertStyle.fillColor,
+          resolvedStyle.fillColor,
+        ],
+        borderColor: [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const handleUserChange = (event) => {
+    setSelectedUser(event.target.value);
+  };
+
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
   };
@@ -261,6 +365,14 @@ function App() {
               <span>Incident Alerts</span>
               <span>{alert}</span>
             </div>
+          </div>
+        </section>
+        <section className="chart-data">
+          <div>
+            <Pie data={pieData} />
+          </div>
+          <div>
+            <Bar data={barData} options={barOptions} />
           </div>
         </section>
       </div>

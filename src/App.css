@@ -64,3 +64,15 @@ select {
   color: #000;
   cursor: pointer;
 }
+.chart-data {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin: 3rem 1rem 1rem 1rem !important;
+}
+.chart-data div {
+  width: 46%;
+  height: 46%;
+}
