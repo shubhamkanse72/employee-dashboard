@@ -245,40 +245,7 @@ function App() {
   };
 
   const pieData = {
-    labels: [
-      "PR Open",
-      "PR Merged",
-      "Commit",
-      "PR Reviewed",
-      "PR Comment",
-      "Incidents Resolved",
-      "Incidents Alerts",
-    ],
-    datasets: [
-      {
-        label: "",
-        data: [open, merged, commit, reviewed, comment, alert, resolved],
-        backgroundColor: [
-          colorOptions.openStyle.fillColor,
-          colorOptions.mergedStyle.fillColor,
-          colorOptions.commitStyle.fillColor,
-          colorOptions.reviewedStyle.fillColor,
-          colorOptions.commentStyle.fillColor,
-          colorOptions.alertStyle.fillColor,
-          colorOptions.resolvedStyle.fillColor,
-        ],
-        borderColor: [
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-        ],
-        borderWidth: 1,
-      },
-    ],
+    ...barData
   };
 
   const handleUserChange = (event) => {
