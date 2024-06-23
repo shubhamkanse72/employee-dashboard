@@ -1,6 +1,7 @@
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { Bar, Pie } from "react-chartjs-2";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,7 +12,7 @@ import {
   Legend,
   ArcElement,
 } from "chart.js";
-import sampleData from "./sample-data.json";
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,8 +24,17 @@ ChartJS.register(
 );
 
 function App() {
-  const data = sampleData.data.AuthorWorklog.rows;
   const [selectedUser, setSelectedUser] = useState("total");
+  const [data, setInitialData] = useState({});
+  const [colorOptions, setColorOptions] = useState({
+    openStyle: "",
+    mergedStyle: "",
+    commitStyle: "",
+    reviewedStyle: "",
+    commentStyle: "",
+    alertStyle: "",
+    resolvedStyle: "",
+  });
   const [selectedDate, setSelectedDate] = useState("total");
   const [open, setOpen] = useState(0);
   const [merged, setMerged] = useState(0);
@@ -33,123 +43,37 @@ function App() {
   const [commit, setCommit] = useState(0);
   const [resolved, setResolved] = useState(0);
   const [alert, setAlert] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  const [
-    openStyle,
-    mergedStyle,
-    commitStyle,
-    reviewedStyle,
-    commentStyle,
-    alertStyle,
-    resolvedStyle,
-  ] = sampleData.data.AuthorWorklog.activityMeta;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(
+          "https://raw.githubusercontent.com/shubhamkanse72/sample-json-data/main/sample-data.json"
+        );
+        let [open, merged, commit, reviewed, comment, alert, resolved] =
+          response.data.data.AuthorWorklog.activityMeta;
 
-  const barData = {
-    labels: [
-      "PR Open",
-      "PR Merged",
-      "Commit",
-      "PR Reviewed",
-      "PR Comment",
-      "Incidents Resolved",
-      "Incidents Alerts",
-    ],
-    datasets: [
-      {
-        label: "",
-        data: [open, merged, commit, reviewed, comment, alert, resolved],
-        backgroundColor: [
-          openStyle.fillColor,
-          mergedStyle.fillColor,
-          commitStyle.fillColor,
-          reviewedStyle.fillColor,
-          commentStyle.fillColor,
-          alertStyle.fillColor,
-          resolvedStyle.fillColor,
-        ],
-        borderColor: [
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
+        setInitialData(response.data.data.AuthorWorklog.rows);
+        setColorOptions({
+          openStyle: open,
+          mergedStyle: merged,
+          commitStyle: commit,
+          reviewedStyle: reviewed,
+          commentStyle: comment,
+          alertStyle: alert,
+          resolvedStyle: resolved,
+        });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const barOptions = {
-    scales: {
-      y: {
-        beginAtZero: true,
-      },
-    },
-  };
+    fetchData();
+  }, []);
 
-  const pieData = {
-    labels: [
-      "PR Open",
-      "PR Merged",
-      "Commit",
-      "PR Reviewed",
-      "PR Comment",
-      "Incidents Resolved",
-      "Incidents Alerts",
-    ],
-    datasets: [
-      {
-        label: "",
-        data: [open, merged, commit, reviewed, comment, alert, resolved],
-        backgroundColor: [
-          openStyle.fillColor,
-          mergedStyle.fillColor,
-          commitStyle.fillColor,
-          reviewedStyle.fillColor,
-          commentStyle.fillColor,
-          alertStyle.fillColor,
-          resolvedStyle.fillColor,
-        ],
-        borderColor: [
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-          "#000000",
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const handleUserChange = (event) => {
-    setSelectedUser(event.target.value);
-  };
-
-  const handleDateChange = (event) => {
-    setSelectedDate(event.target.value);
-  };
-  const setData = (
-    open,
-    merged,
-    commit,
-    reviewed,
-    comment,
-    alert,
-    resolved
-  ) => {
-    setOpen(open);
-    setMerged(merged);
-    setCommit(commit);
-    setReviewed(reviewed);
-    setComment(comment);
-    setAlert(alert);
-    setResolved(resolved);
-  };
   const sortData = useCallback(
     (user, date) => {
       if (user === "total") {
@@ -274,6 +198,117 @@ function App() {
     sortData(selectedUser, selectedDate);
   }, [selectedUser, selectedDate, sortData]);
 
+
+  const barData = {
+    labels: [
+      "PR Open",
+      "PR Merged",
+      "Commit",
+      "PR Reviewed",
+      "PR Comment",
+      "Incidents Resolved",
+      "Incidents Alerts",
+    ],
+    datasets: [
+      {
+        label: "",
+        data: [open, merged, commit, reviewed, comment, alert, resolved],
+        backgroundColor: [
+          colorOptions.openStyle.fillColor,
+          colorOptions.mergedStyle.fillColor,
+          colorOptions.commitStyle.fillColor,
+          colorOptions.reviewedStyle.fillColor,
+          colorOptions.commentStyle.fillColor,
+          colorOptions.alertStyle.fillColor,
+          colorOptions.resolvedStyle.fillColor,
+        ],
+        borderColor: [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const barOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+
+  const pieData = {
+    labels: [
+      "PR Open",
+      "PR Merged",
+      "Commit",
+      "PR Reviewed",
+      "PR Comment",
+      "Incidents Resolved",
+      "Incidents Alerts",
+    ],
+    datasets: [
+      {
+        label: "",
+        data: [open, merged, commit, reviewed, comment, alert, resolved],
+        backgroundColor: [
+          colorOptions.openStyle.fillColor,
+          colorOptions.mergedStyle.fillColor,
+          colorOptions.commitStyle.fillColor,
+          colorOptions.reviewedStyle.fillColor,
+          colorOptions.commentStyle.fillColor,
+          colorOptions.alertStyle.fillColor,
+          colorOptions.resolvedStyle.fillColor,
+        ],
+        borderColor: [
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+          "#000000",
+        ],
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const handleUserChange = (event) => {
+    setSelectedUser(event.target.value);
+  };
+
+  const handleDateChange = (event) => {
+    setSelectedDate(event.target.value);
+  };
+  const setData = (
+    open,
+    merged,
+    commit,
+    reviewed,
+    comment,
+    alert,
+    resolved
+  ) => {
+    setOpen(open);
+    setMerged(merged);
+    setCommit(commit);
+    setReviewed(reviewed);
+    setComment(comment);
+    setAlert(alert);
+    setResolved(resolved);
+  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="App">
       <div className="dashboard">
@@ -284,7 +319,7 @@ function App() {
         </section>
         <section className="filters">
           <div>
-            <label htmlFor="dropdown">Select User:</label>
+            <label htmlFor="dropdown">Select User: </label>
             <select
               className="select-dropdown"
               value={selectedUser}
@@ -299,7 +334,7 @@ function App() {
             </select>
           </div>
           <div>
-            <label htmlFor="dropdown">Select Date:</label>
+            <label htmlFor="dropdown">Select Date: </label>
             <select value={selectedDate} onChange={handleDateChange}>
               <option value="total">All</option>
               {data.map((item) =>
@@ -316,28 +351,28 @@ function App() {
           <div>
             <div
               className="data_count"
-              style={{ backgroundColor: openStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.openStyle.fillColor }}
             >
               <span>PR Open</span>
               <span>{open}</span>
             </div>
             <div
               className="data_count"
-              style={{ backgroundColor: mergedStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.mergedStyle.fillColor }}
             >
               <span>PR Merged</span>
               <span>{merged}</span>
             </div>
             <div
               className="data_count"
-              style={{ backgroundColor: reviewedStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.reviewedStyle.fillColor }}
             >
               <span>PR Reviewed</span>
               <span>{reviewed}</span>
             </div>
             <div
               className="data_count"
-              style={{ backgroundColor: commentStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.commentStyle.fillColor }}
             >
               <span>PR Comments</span>
               <span>{comment}</span>
@@ -346,21 +381,21 @@ function App() {
           <div>
             <div
               className="data_count"
-              style={{ backgroundColor: commitStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.commitStyle.fillColor }}
             >
               <span>Commits</span>
               <span>{commit}</span>
             </div>
             <div
               className="data_count"
-              style={{ backgroundColor: resolvedStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.resolvedStyle.fillColor }}
             >
               <span>Incidents Resolved</span>
               <span>{resolved}</span>
             </div>
             <div
               className="data_count"
-              style={{ backgroundColor: alertStyle.fillColor }}
+              style={{ backgroundColor: colorOptions.alertStyle.fillColor }}
             >
               <span>Incident Alerts</span>
               <span>{alert}</span>
