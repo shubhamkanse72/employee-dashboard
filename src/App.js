@@ -315,7 +315,7 @@ function App() {
           </div>
         </section>
         <section className="data">
-          <div>
+          <div className="data_first">
             <div
               className="data_count"
               style={{ backgroundColor: colorOptions.openStyle.fillColor }}
@@ -345,7 +345,7 @@ function App() {
               <span>{comment}</span>
             </div>
           </div>
-          <div>
+          <div className="data_second">
             <div
               className="data_count"
               style={{ backgroundColor: colorOptions.commitStyle.fillColor }}
